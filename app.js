@@ -1,8 +1,25 @@
 const express = require('express')
+const http = require('http')
+const socketio = require('socket.io')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const usersRouter = require('./src/routes/users')
+
+
 const app = express()
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended : false}))
+app.use(cors())
+app.use('/api/users',usersRouter)
 
-const PORT = 3000
+const server = http.createServer(app)
+const io = socketio(server)
 
-app.listen(PORT, () => {
-    console.log(`App running on port ${PORT}`)
+//
+
+//
+
+const PORT = 3008
+server.listen(PORT , () => {
+    console.log(`App Running on Port ${PORT}`)
 })
