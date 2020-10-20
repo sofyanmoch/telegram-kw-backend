@@ -12,8 +12,8 @@ const sendMail =  {
             secure: false,
             requireTLS: true,
             auth: {
-              user: 'mochsofyannn@gmail.com',
-              pass: '@Daop7900'
+              user: '',
+              pass: ''
             }
           });
           
