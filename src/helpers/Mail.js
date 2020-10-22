@@ -12,8 +12,8 @@ const sendMail =  {
             secure: false,
             requireTLS: true,
             auth: {
-              user: '',
-              pass: ''
+              user: EMAIL,
+              pass: PASSWORD
             }
           });
           
