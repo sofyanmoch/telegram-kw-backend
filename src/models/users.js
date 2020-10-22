@@ -1,4 +1,5 @@
 const db = require('../configs/db')
+const fs = require('fs')
 
 module.exports = {
     register: (data) => {
@@ -55,6 +56,22 @@ module.exports = {
         return new Promise((resolve,reject) => {
             db.query(`SELECT * from users where id = ${id}`,(err,result)=> {
                 err? reject(new Error(err)) : resolve(result)
+            })
+        })
+    },
+    // getOne: (id) => {
+    //     return new Promise((resolve,reject) => {
+    //         db.query(`SELECT * from users `)
+    //     })
+    // },
+    updateUsers: (data, id) => {
+        return new Promise((resolve,reject) => {
+            db.query(`UPDATE users SET ? WHERE id = ${id}`, [data, id], (err, result) => {
+                if(err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
             })
         })
     }

@@ -6,6 +6,9 @@ const jwt = require('jsonwebtoken')
 const { secretKey } = require('../helpers/env')
 const { getEmail, getUsername } = require('../models/users')
 const {emailSend} = require('../helpers/Mail')
+const upload = require('../helpers/upload')
+const { response } = require('express')
+const fs = require('fs')
 
 module.exports = {
     register: async(req,res) => {
@@ -124,6 +127,51 @@ module.exports = {
             })
         } catch{
             failed(res,[],'internal server error')
+        }
+    },
+    updateUsers: (req,res) => {
+        try {
+            const body = req.body
+            upload.single('image')(req,res, (err) => {
+                if (err) {
+                    if (err.code === `LIMIT_FIELD_VALUE`) {
+                        failed(res, [], `Image size is to big`)
+                    } else {
+                        failed(res, [], err)
+                    }
+                } else {
+                    const id = req.params.id
+                    usersModel.getDetail(id).then((response) => {
+                        const imgOld = response[0].image
+                        body.image = !req.file? imgOld : req.file.filename
+                        if(body.image !== imgOld) {
+                            if(imgOld !== '404.png') {
+                                fs.unlink(`src/img/${imgOld}`, (err) => {
+                                    if(err) {
+                                        failed(res, [], err.message)
+                                    } else {
+                                        usersModel.updateUsers(body, id)
+                                        .then((result) => {
+                                            success(res,result,'Users Updated')
+                                        }).catch((err) => {
+                                            failed(res, [], err.message)
+                                        })
+                                    }
+                                })
+                            }
+                        } else {
+                            usersModel.updateUsers(body, id)
+                            .then((result) => {
+                                success(res, result, 'Users Updated')
+                            }).catch((err) => {
+                                failed(res, [], err.message)
+                            })
+                        }
+                    })
+                }
+            })
+        } catch {
+            failed(res,[],'Internal server error')
         }
     }
 }
