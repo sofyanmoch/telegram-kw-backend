@@ -4,6 +4,7 @@ const socketio = require('socket.io')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const usersRouter = require('./src/routes/users')
+const friendsRouter = require('./src/routes/friends')
 const db = require('./src/configs/db')
 const ejs = require('ejs')
 const path = require('path')
@@ -15,6 +16,7 @@ app.use(express.static('src/img'))
 app.use(bodyParser.urlencoded({extended : false}))
 app.use(cors())
 app.use('/api/users',usersRouter)
+app.use('/api/friends',friendsRouter)
 app.set('views', path.join(__dirname,'src/views'))
 app.set('view engine', 'ejs')
 app.use(express.static('src/views'))
@@ -31,6 +33,18 @@ io.on('connection', (socket) => {
             }else{
                 io.emit('list-users',result)
             }
+        })
+    })
+
+    socket.on('delete-message', (id) => {
+        return new Promise((resolve, reject) => {
+            db.query(`DELETE FROM message WHERE id='${id}'`, (err, result) => {
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
         })
     })
 

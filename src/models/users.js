@@ -64,7 +64,7 @@ module.exports = {
     //         db.query(`SELECT * from users `)
     //     })
     // },
-    updateUsers: (data, id) => {
+    updateUser: (data, id) => {
         return new Promise((resolve,reject) => {
             db.query(`UPDATE users SET ? WHERE id = ${id}`, [data, id], (err, result) => {
                 if(err) {

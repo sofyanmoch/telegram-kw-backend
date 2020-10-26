@@ -7,7 +7,6 @@ const { secretKey } = require('../helpers/env')
 const { getEmail, getUsername } = require('../models/users')
 const {emailSend} = require('../helpers/Mail')
 const upload = require('../helpers/upload')
-const { response } = require('express')
 const fs = require('fs')
 
 module.exports = {
@@ -129,49 +128,63 @@ module.exports = {
             failed(res,[],'internal server error')
         }
     },
-    updateUsers: (req,res) => {
+    updateUsers: async(req,res) => {
         try {
-            const body = req.body
-            upload.single('image')(req,res, (err) => {
-                if (err) {
-                    if (err.code === `LIMIT_FIELD_VALUE`) {
-                        failed(res, [], `Image size is to big`)
-                    } else {
-                        failed(res, [], err)
-                    }
+        upload.single('image')(req, res, (err) => {
+            if (err) {
+                if (err.code === `LIMIT_FILE_SIZE`) {
+                    failed(res, [], `Image size is to big`)
                 } else {
-                    const id = req.params.id
-                    usersModel.getDetail(id).then((response) => {
-                        const imgOld = response[0].image
-                        body.image = !req.file? imgOld : req.file.filename
-                        if(body.image !== imgOld) {
-                            if(imgOld !== '404.png') {
-                                fs.unlink(`src/img/${imgOld}`, (err) => {
-                                    if(err) {
+                    failed(res, [], err)
+                    const body = req.body
+                    console.log(body)
+                }
+            } else {
+                const body = req.body
+                const id = req.params.id
+                usersModel.getDetail(id)
+                    .then((response) => {
+                        const imageOld = response[0].image
+                        body.image = !req.file ? imageOld : req.file.filename
+                        if (body.image !== imageOld) {
+                            if (imageOld !== '404P.png') {
+                                fs.unlink(`src/img/${imageOld}`, (err) => {
+                                    if (err) {
                                         failed(res, [], err.message)
                                     } else {
-                                        usersModel.updateUsers(body, id)
-                                        .then((result) => {
-                                            success(res,result,'Users Updated')
-                                        }).catch((err) => {
-                                            failed(res, [], err.message)
-                                        })
+                                        usersModel.updateUser(body, id)
+                                            .then((result) => {
+                                                success(res, result, 'Update success')
+                                            })
+                                            .catch((err) => {
+                                                failed(res, [], err.message)
+                                            })
                                     }
                                 })
+                            } else {
+                                usersModel.updateUser(body, id)
+                                    .then((result) => {
+                                        success(res, result, 'Update success')
+                                    })
+                                    .catch((err) => {
+                                        failed(res, [], err.message)
+                                    })
                             }
                         } else {
-                            usersModel.updateUsers(body, id)
-                            .then((result) => {
-                                success(res, result, 'Users Updated')
-                            }).catch((err) => {
-                                failed(res, [], err.message)
-                            })
+                            usersModel.updateUser(body, id)
+                                .then((result) => {
+                                    success(res, result, 'Update success')
+                                })
+                                .catch((err) => {
+                                    failed(res, [], err.message)
+                                    // console.log(err)
+                                })
                         }
                     })
-                }
-            })
-        } catch {
-            failed(res,[],'Internal server error')
-        }
+            }
+        })
+    } catch {
+        failed(res, [], 'internal error')
+    }
     }
 }

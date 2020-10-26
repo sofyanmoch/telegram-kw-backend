@@ -1,19 +1,19 @@
 module.exports = {
     success: (res,data,message) => {
         const result = {
-            message: message,
+            message,
             success: true,
             status: 200,
-            data: data
+            data
         }
         res.json(result)
     },
     failed: (res,data,message) => {
         const result = {
-            message: message,
+            message,
             success: false,
             status: 500,
-            data: data
+            data
         }
         res.json(result)
     },
