@@ -129,11 +129,11 @@ module.exports = {
         }
     },
     updateUsers: async(req,res) => {
-        try {
+        // try {
         upload.single('image')(req, res, (err) => {
             if (err) {
                 if (err.code === `LIMIT_FILE_SIZE`) {
-                    failed(res, [], `Image size is to big`)
+                    failed(res, [], `File terlalu besar, maximal 500Kb`)
                 } else {
                     failed(res, [], err)
                     const body = req.body
@@ -183,8 +183,8 @@ module.exports = {
                     })
             }
         })
-    } catch {
-        failed(res, [], 'internal error')
-    }
+    // } catch {
+    //     failed(res, [], 'internal error')
+    // }
     }
 }
